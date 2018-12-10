@@ -208,7 +208,9 @@ function initEvent() {
             var component = {
                 name: componentName,
                 models: [],
-                modelIndex: -1
+                modelIndex: -1,
+                textures: [],
+                textureIndex: -1
             }
             data.components.push(component);
             freshComponentItem();
@@ -239,8 +241,15 @@ function initEvent() {
                         //todo 还需要发送ajax清空模型文件
                     }
                 }
+            }, {
+                icon: 'times',
+                text: '取消',
             }]
         }).show();
+    });
+
+    $('#textureManagerment').click(function () {
+        $('#textureManagermentModal').modal('show');
     });
 }
 
