@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>创建方案</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <!-- three.js -->
+    <script src="/js/three/three.js"></script>
+    <script src="/js/three/OrbitControls.js"></script>
+    <!-- 加载器 -->
+    <script src="/js/three/OBJLoader.js"></script>
+    <script src="/js/three/FBXLoader.js"></script>
+    <script src="/js/three/TGALoader.js"></script>
+    <script src='/js/three/inflate.min.js'></script>
+    <!-- ZUI -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/zui/1.8.1/css/zui.min.css">
+    <script src="//cdn.bootcss.com/zui/1.8.1/js/zui.min.js"></script>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        #viewField {
+            width: 80%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+        #editField {
+            background-color: #fafafa;
+            padding: 10px;
+            width: 20%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+        </style>
+</head>
+
+<body>
+    <!-- threejs容器 -->
+    <div id="viewField"></div>
+    <!-- 编辑栏 -->
+    <div id="editField">
+        <div class="panel">
+            <div class="panel-heading">
+                <div class="input-control has-label-left">
+                    <input id="schemeName" type="text" class="form-control" placeholder="">
+                    <label for="schemeName" class="input-control-label-left"><i class="icon icon-edit"></i>方案名</label>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="dropdown">
+                    <button class="btn btn-block" data-toggle="dropdown">组件选择 <span class="caret"></span></button>
+                    <ul class="dropdown-menu" id="componentList">
+                        <li><a data-toggle="modal" data-target="#addComponentModal"><i class="icon icon-plus"></i> 添加新组件</a></li>
+                    </ul>
+                </div>
+                <div style="margin-top:20px">
+                    <div class="page-header">
+                        <h3 id="componentTitle">请先选择部件</h3>
+                    </div>
+                    <div class="list-group" id="modelList">
+                        
+                    </div>
+                    <button id="delComponent" class="btn btn-danger pull-right" style="display: none">删除该组件</button>
+                </div>
+
+            </div>
+            <div class="panel-footer">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" name="file" id="file" style="display: none" />
+                </form>
+                <button class="btn btn-primary btn-block disabled" id="upload">上传模型</button>
+                <button class="btn btn-success btn-block" id="saveScheme">保存方案</button>
+            </div>
+        </div>
+        <!-- 模态框：添加组件 -->
+        <div class="modal fade" id="addComponentModal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                                class="sr-only">关闭</span></button>
+                        <h4 class="modal-title">添加新组件</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" class="form-control" id="componentName" placeholder="组件名称">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" id="addComponent">添加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/js/createScheme.js"></script>
+</body>
+
+</html>
