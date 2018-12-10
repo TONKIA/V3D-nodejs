@@ -63,7 +63,7 @@
                 <div class="dropdown">
                     <button class="btn btn-block" data-toggle="dropdown">组件选择 <span class="caret"></span></button>
                     <ul class="dropdown-menu" id="componentList">
-                        <li><a data-toggle="modal" data-target="#addComponentModal"><i class="icon icon-plus"></i> 添加新组件</a></li>
+                        <li><a data-toggle="modal" data-target="#addComponentModal"><i class="icon icon-plus"></i>添加新组件</a></li>
                     </ul>
                 </div>
                 <div style="margin-top:20px">
@@ -71,11 +71,10 @@
                         <h3 id="componentTitle">请先选择部件</h3>
                     </div>
                     <div class="list-group" id="modelList">
-                        
                     </div>
                     <button id="delComponent" class="btn btn-danger pull-right" style="display: none">删除该组件</button>
+                    <button id="textureManagerment" class="btn pull-right" style="display: none;margin-right:10px;">贴图管理</button>
                 </div>
-
             </div>
             <div class="panel-footer">
                 <form id="uploadForm" enctype="multipart/form-data">
@@ -100,6 +99,25 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                         <button type="button" class="btn btn-primary" id="addComponent">添加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框：材质管理 -->
+        <div class="modal fade" id="textureManagermentModal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                                class="sr-only">关闭</span></button>
+                        <h4 class="modal-title">材质管理</h4>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="addComponent">确定</button>
                     </div>
                 </div>
             </div>

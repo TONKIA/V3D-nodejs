@@ -46,6 +46,7 @@ function selectComponent(index) {
     componentIndex = index;
     $('#componentTitle').text(data.components[componentIndex].name);
     $('#delComponent').show();
+    $('#textureManagerment').show();
     $('#upload').removeClass("disabled");
     //加载模型列表
     freshmodelList();
@@ -62,15 +63,20 @@ function freshmodelList() {
         for (var index in data.components[componentIndex].models) {
             if (index == data.components[componentIndex].modelIndex) {
                 data.components[componentIndex].models[index].modelObj.visible = true;
-                $('#modelList').append("<a class='list-group-item active' onclick='selectModel(" + index + ")'>" + data.components[componentIndex].models[index].name + "</a>")
+                $('#modelList').append("<a class='list-group-item active' onclick='selectModel(" + index + ")'><span>" + data.components[componentIndex].models[index].name + "</span><button type='button' class='close' onclick='delModelItem(" + index + ")'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button></a>");
             } else {
                 data.components[componentIndex].models[index].modelObj.visible = false;
-                $('#modelList').append("<a class='list-group-item' onclick='selectModel(" + index + ")'>" + data.components[componentIndex].models[index].name + "</a>")
+                $('#modelList').append("<a class='list-group-item' onclick='selectModel(" + index + ")'><span>" + data.components[componentIndex].models[index].name + "</span><button type='button' class='close' onclick='delModelItem(" + index + ")'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button></a>");
             }
         }
     }
 }
-
+//删除模型
+function delModelItem(index) {
+    scene.remove(data.components[componentIndex].models[index].modelObj);
+    data.components[componentIndex].models.splice(index, 1);
+    selectModel(0);
+}
 //选择模型
 function selectModel(index) {
     data.components[componentIndex].modelIndex = index;
@@ -226,6 +232,7 @@ function initEvent() {
                         freshComponentItem();
                         componentIndex = -1;
                         $('#componentTitle').text('请先选择部件');
+                        $('#textureManagerment').hide();
                         $('#delComponent').hide();
                         $('#upload').addClass("disabled");
                         $('.list-group-item').remove();
@@ -251,7 +258,7 @@ function addModel(url, callBack) {
     loader.load(url, function (object) {
         object.traverse(function (child) {
             if (child instanceof THREE.Mesh) {
-                //child.material.map = map;
+                child.material.map = map;
                 child.material.castShadow = true;
                 child.material.receiveShadow = true;
                 child.material.needsUpdate = true;
@@ -259,8 +266,11 @@ function addModel(url, callBack) {
         });
         scene.add(object);
         callBack(object);
-    });
-
-
+    }, function (xhr) {
+        //console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    }, function (err) {
+        console.error('An error happened');
+    }
+    );
 }
 
