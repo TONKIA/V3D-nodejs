@@ -1,7 +1,9 @@
 var renderer, scene, camera;
 
 //整个页面维护的数据
-var data = { name: '默认方案', components: [] };
+//var data = { name: '默认方案', components: [] };
+//TODO 相机参数
+var data;
 
 //当前选择的部件
 var componentIndex = -1;
@@ -13,6 +15,7 @@ $().ready(function () {
     loadmodel();
     initEvent();
 });
+
 //初始化Threejs
 function initThree() {
     initScene();
@@ -20,11 +23,24 @@ function initThree() {
     initRenderer();
     render();
 }
-//获取数据
+
+//获取数据 初始化data
 function initData() {
-    //todo ajax请求数据
+    //ajax请求数据
+    $.ajax({
+        type: "POST",
+        url: "/getScheme",
+        async: false, //同步请求，不然data会出问题
+        success: function (remotaData) {
+            data = remotaData;
+        },
+        error: function () {
+            //TODO 初始化数据异常
+        }
+    });
 }
-//刷新主Ui
+
+//刷新主Ui，方案名，部件列表
 function initUi() {
     //方案名
     $('#schemeName').val(data.name);
@@ -52,7 +68,7 @@ function selectComponent(index) {
     freshmodelList();
 }
 
-//选择模型列表
+//刷新模型的选择列表
 function freshmodelList() {
     $('.list-group-item').remove();
     if (data.components[componentIndex].models.length == 0) {
@@ -71,21 +87,57 @@ function freshmodelList() {
         }
     }
 }
+
+//选择模型
+function selectModel(index) {
+    data.components[componentIndex].modelIndex = index;
+    freshmodelList();
+}
 //删除模型
 function delModelItem(index) {
     scene.remove(data.components[componentIndex].models[index].modelObj);
     data.components[componentIndex].models.splice(index, 1);
     selectModel(0);
 }
-//选择模型
-function selectModel(index) {
-    data.components[componentIndex].modelIndex = index;
-    freshmodelList();
-}
 
 //初始化模型
 function loadmodel() {
-
+    var manager = new THREE.LoadingManager();
+    manager.onStart = function (url, itemsLoaded, itemsTotal) {
+        console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+    manager.onLoad = function () {
+        initUi();
+        console.log('Loading complete!');
+    };
+    manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+        console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+    manager.onError = function (url) {
+        console.log('There was an error loading ' + url);
+    };
+    var loader = new THREE.FBXLoader(manager);
+    for (var comIndex in data.components) {
+        for (var molIndex in data.components[comIndex].models) {
+            //异步加载问题
+            (function (comIndex, molIndex) {
+                var url = '/files/' + data.components[comIndex].models[molIndex].fileId;
+                loader.load(url, function (object) {
+                    // object.traverse(function (child) {
+                    //     if (child instanceof THREE.Mesh) {
+                    //         child.material.castShadow = true;
+                    //         child.material.receiveShadow = true;
+                    //         child.material.needsUpdate = true;
+                    //     }
+                    // });
+                    object.visible = (data.components[comIndex].modelIndex == molIndex);
+                    data.components[comIndex].models[molIndex].modelObj = object;
+                    scene.add(object);
+                }
+                );
+            })(comIndex, molIndex);
+        }
+    }
 }
 
 function initScene() {
@@ -127,7 +179,6 @@ function initCamera() {
     controls = new THREE.OrbitControls(camera, $('#viewField')[0]);
     controls.target.set(0, 0, 0);
     controls.update();
-
 }
 
 function initRenderer() {
@@ -148,6 +199,16 @@ function render() {
 
 //初始化所有事件
 function initEvent() {
+    $('#saveScheme').click(function () {
+        console.info(data);
+        $.ajax({
+            type: "POST",
+            url: "/saveScheme",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(data)
+        });
+    });
+
     //方案名变动监听
     $('#schemeName').change(function () {
         data.name = $('#schemeName').val();
@@ -253,8 +314,9 @@ function initEvent() {
     });
 }
 
+// 选择上传完成后加载模型
 function addModel(url, callBack) {
-    var map = new THREE.TextureLoader().load('/img/texture/001.jpg');
+    //var map = new THREE.TextureLoader().load('/img/texture/001.jpg');
     //加载obj模型
     // loader = new THREE.OBJLoader();
     // loader.load(url, function (object) {
@@ -266,12 +328,12 @@ function addModel(url, callBack) {
     var loader = new THREE.FBXLoader();
     loader.load(url, function (object) {
         object.traverse(function (child) {
-            if (child instanceof THREE.Mesh) {
-                child.material.map = map;
-                child.material.castShadow = true;
-                child.material.receiveShadow = true;
-                child.material.needsUpdate = true;
-            }
+            // if (child instanceof THREE.Mesh) {
+            //     child.material.map = map;
+            //     child.material.castShadow = true;
+            //     child.material.receiveShadow = true;
+            //     child.material.needsUpdate = true;
+            // }
         });
         scene.add(object);
         callBack(object);
