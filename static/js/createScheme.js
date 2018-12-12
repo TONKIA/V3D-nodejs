@@ -100,6 +100,17 @@ function delModelItem(index) {
     selectModel(0);
 }
 
+//刷新贴图列表
+function freshTextureList() {
+    $('#textureList').empty();
+    for (var index in data.components[componentIndex].textures) {
+        var fileName = data.components[componentIndex].textures[index].name;
+        var fileId = data.components[componentIndex].textures[index].fileId;
+
+        $('#textureList').append("<img src='/files/thumbnail/" + fileId + "' width='40px' height='40px' class='img-thumbnail' alt = '" + fileName + "' > ");
+    }
+}
+
 //初始化模型
 function loadmodel() {
     var manager = new THREE.LoadingManager();
@@ -183,7 +194,7 @@ function initCamera() {
 
 function initRenderer() {
     //初始化渲染器
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     //设置像素值
     renderer.setPixelRatio(window.devicePixelRatio);
     //设置渲染范围为屏幕的大小
@@ -219,6 +230,10 @@ function initEvent() {
         $("#file").click();
     });
 
+    $("#textureUpload").click(function () {
+        $("#textureFile").click();
+    });
+
     //只要file发生改变就上传文件
     $("#file").change(function () {
         if ($(this).val().length > 0) {
@@ -242,6 +257,38 @@ function initEvent() {
                         selectModel(data.components[componentIndex].models.length - 1);
                     }
                     addModel('/files/' + fileData.filename, addModelItem);
+                },
+                error: function () {
+                    alert("上传失败")
+                }
+            });
+        }
+    });
+
+    //贴图文件上传
+    $("#textureFile").change(function () {
+        if ($(this).val().length > 0) {
+            var formData = new FormData($('#uploadTextureForm')[0]);
+            $.ajax({
+                type: 'post',
+                url: "/upload",
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (fileData) {
+                    //上传成功后加载模型
+                    //加载是异步的
+                    var addTextureItem = function (textureObj) {
+                        data.components[componentIndex].textures.push({
+                            name: fileData.originalname,
+                            fileId: fileData.filename,
+                            textureObj: textureObj
+                        });
+                        //selectModel(data.components[componentIndex].models.length - 1);
+                        freshTextureList();
+                    }
+                    addTexture('/files/' + fileData.filename, addTextureItem);
                 },
                 error: function () {
                     alert("上传失败")
@@ -345,3 +392,9 @@ function addModel(url, callBack) {
     );
 }
 
+function addTexture(url, callBack) {
+    var textureLoader = new THREE.TextureLoader();
+    textureLoader.load(url, function (object) {
+        callBack(object);
+    });
+}

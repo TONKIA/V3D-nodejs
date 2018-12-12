@@ -2,6 +2,10 @@ var express = require('express');
 var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 var bodyParser = require('body-parser');
+var fs = require('fs');
+var gm = require('gm');
+
+
 var app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -27,6 +31,22 @@ app.get('/files/:filename', function (req, res) {
     //TODO 根据session判断是否有权限获取文件
     var filename = req.params['filename'];
     res.sendFile(__dirname + "/uploads/" + filename);
+});
+//返回缩略图
+app.get('/files/thumbnail/:filename', function (req, res) {
+    var filename = req.params['filename'];
+    fs.exists(__dirname + "/uploads/thumbnail/" + filename, function (exist) {
+       
+        if (exist) {
+            res.sendFile(__dirname + "/uploads/thumbnail/" + filename);
+        } else {
+            gm('./uploads/' + filename).resize(40, 40).write("./uploads/thumbnail/" + filename, function (err) {
+                if (!err)
+                    console.info(err);
+                    res.sendFile(__dirname + "/uploads/thumbnail/" + filename);
+            })
+        }
+    });
 });
 
 //保存方案
