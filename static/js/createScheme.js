@@ -1,10 +1,10 @@
+//全局变量
 var renderer, scene, camera;
 
 //整个页面维护的数据
 //var data = { name: '默认方案', components: [] };
 //TODO 相机参数
 var data;
-
 //当前选择的部件
 var componentIndex = -1;
 
@@ -12,17 +12,9 @@ $().ready(function () {
     initData();
     initUi();
     initThree();
-    loadmodel();
+    loadModel();
     initEvent();
 });
-
-//初始化Threejs
-function initThree() {
-    initScene();
-    initCamera();
-    initRenderer();
-    render();
-}
 
 //获取数据 初始化data
 function initData() {
@@ -32,6 +24,7 @@ function initData() {
         url: "/getScheme",
         async: false, //同步请求，不然data会出问题
         success: function (remotaData) {
+            //给全局data赋值
             data = remotaData;
         },
         error: function () {
@@ -39,13 +32,23 @@ function initData() {
         }
     });
 }
-
+//获取全局data后
 //刷新主Ui，方案名，部件列表
 function initUi() {
-    //方案名
+    //刷新方案名
     $('#schemeName').val(data.name);
-    //组件列表
+    //刷新组件列表
     freshComponentItem();
+}
+
+//ui初始化结束后
+//初始化Threejs
+//主要是场景、相机、渲染器
+function initThree() {
+    initScene();
+    initCamera();
+    initRenderer();
+    render();
 }
 
 function freshComponentItem() {
@@ -65,11 +68,13 @@ function selectComponent(index) {
     $('#textureManagerment').show();
     $('#upload').removeClass("disabled");
     //加载模型列表
-    freshmodelList();
+    freshModelList();
+    //刷新贴图列表
+    freshTextureList();
 }
 
 //刷新模型的选择列表
-function freshmodelList() {
+function freshModelList() {
     $('.list-group-item').remove();
     if (data.components[componentIndex].models.length == 0) {
         $('#modelList').append('<a class="list-group-item">暂无模型</a>')
@@ -79,6 +84,8 @@ function freshmodelList() {
         for (var index in data.components[componentIndex].models) {
             if (index == data.components[componentIndex].modelIndex) {
                 data.components[componentIndex].models[index].modelObj.visible = true;
+                var textureIndex = data.components[componentIndex].textureIndex;
+                changeTexture(textureIndex);
                 $('#modelList').append("<a class='list-group-item active' onclick='selectModel(" + index + ")'><span>" + data.components[componentIndex].models[index].name + "</span><button type='button' class='close' onclick='delModelItem(" + index + ")'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button></a>");
             } else {
                 data.components[componentIndex].models[index].modelObj.visible = false;
@@ -106,13 +113,20 @@ function freshTextureList() {
     for (var index in data.components[componentIndex].textures) {
         var fileName = data.components[componentIndex].textures[index].name;
         var fileId = data.components[componentIndex].textures[index].fileId;
-
-        $('#textureList').append("<img src='/files/thumbnail/" + fileId + "' width='40px' height='40px' class='img-thumbnail' alt = '" + fileName + "' > ");
+        $('#textureList').append("<img src='/files/thumbnail/" + fileId + "' width='40px' height='40px' class='img-thumbnail' alt = '" + fileName + "' onclick='changeTexture(" + index + ")'> ");
     }
 }
 
+function changeTexture(index) {
+    if (index < 0)
+        return;
+    var modelIndex = data.components[componentIndex].modelIndex;
+    data.components[componentIndex].textureIndex = index;
+    replaceTexture(data.components[componentIndex].models[modelIndex].modelObj, data.components[componentIndex].textures[index].textureObj);
+}
+
 //初始化模型
-function loadmodel() {
+function loadModel() {
     var manager = new THREE.LoadingManager();
     manager.onStart = function (url, itemsLoaded, itemsTotal) {
         console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
@@ -148,6 +162,32 @@ function loadmodel() {
                 );
             })(comIndex, molIndex);
         }
+    }
+
+    var loader = new THREE.TextureLoader(manager);
+    for (var comIndex in data.components) {
+        for (var textureIndex in data.components[comIndex].textures) {
+
+            //异步加载问题
+            (function (comIndex, textureIndex) {
+                var url = '/files/' + data.components[comIndex].textures[textureIndex].fileId;
+                loader.load(url, function (object) {
+                    // object.traverse(function (child) {
+                    //     if (child instanceof THREE.Mesh) {
+                    //         child.material.castShadow = true;
+                    //         child.material.receiveShadow = true;
+                    //         child.material.needsUpdate = true;
+                    //     }
+                    // });
+                    data.components[comIndex].textures[molIndex].textureObj = object;
+
+                }
+                );
+            })(comIndex, textureIndex);
+        }
+        var modelIndex = data.components[comIndex].modelIndex;
+        var textureIndex = data.components[comIndex].textureIndex;
+        replaceTexture(data.components[componentIndex].models[modelIndex].modelObj, data.components[componentIndex].textures[textureIndex].textureObj);
     }
 }
 
@@ -363,14 +403,7 @@ function initEvent() {
 
 // 选择上传完成后加载模型
 function addModel(url, callBack) {
-    //var map = new THREE.TextureLoader().load('/img/texture/001.jpg');
-    //加载obj模型
-    // loader = new THREE.OBJLoader();
-    // loader.load(url, function (object) {
-    //     object.position.set(0, -1, 0);
-    //     object.scale.set(0.01, 0.01, 0.01);
-    //     scene.add(object);
-    // });
+
     //加载fbx模型
     var loader = new THREE.FBXLoader();
     loader.load(url, function (object) {
@@ -391,10 +424,21 @@ function addModel(url, callBack) {
     }
     );
 }
-
+//加载贴图
 function addTexture(url, callBack) {
     var textureLoader = new THREE.TextureLoader();
     textureLoader.load(url, function (object) {
         callBack(object);
+    });
+}
+
+function replaceTexture(modelObj, textureObj) {
+    modelObj.traverse(function (child) {
+        if (child instanceof THREE.Mesh) {
+            child.material.map = textureObj;
+            child.material.castShadow = true;
+            child.material.receiveShadow = true;
+            child.material.needsUpdate = true;
+        }
     });
 }

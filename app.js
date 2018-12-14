@@ -4,8 +4,6 @@ var upload = multer({ dest: 'uploads/' });
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var gm = require('gm');
-
-
 var app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -35,23 +33,25 @@ app.get('/files/:filename', function (req, res) {
 //返回缩略图
 app.get('/files/thumbnail/:filename', function (req, res) {
     var filename = req.params['filename'];
-    fs.exists(__dirname + "/uploads/thumbnail/" + filename, function (exist) {
-       
-        if (exist) {
-            res.sendFile(__dirname + "/uploads/thumbnail/" + filename);
-        } else {
-            gm('./uploads/' + filename).resize(40, 40).write("./uploads/thumbnail/" + filename, function (err) {
-                if (!err)
-                    console.info(err);
-                    res.sendFile(__dirname + "/uploads/thumbnail/" + filename);
-            })
-        }
-    });
+    // fs.exists(__dirname + "/uploads/thumbnail/" + filename, function (exist) {
+
+    //     if (exist) {
+    //         res.sendFile(__dirname + "/uploads/thumbnail/" + filename);
+    //     } else {
+    //         gm('./uploads/' + filename).resize(40, 40).write("./uploads/thumbnail/" + filename, function (err) {
+    //             if (!err)
+    //                 console.info(err);
+    //                 res.sendFile(__dirname + "/uploads/thumbnail/" + filename);
+    //         })
+    //     }
+    // });
+    res.sendFile(__dirname + "/uploads/" + filename);
 });
 
 //保存方案
 app.post('/saveScheme', function (req, res) {
     data = req.body;
+    //console.info(data);
 });
 
 //获取方案
