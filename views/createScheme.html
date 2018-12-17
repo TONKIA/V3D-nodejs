@@ -44,12 +44,30 @@
             top: 0px;
             left: 0px;
         }
+
+        #textureField{
+            width:40px;
+            position: absolute;
+            top:10px;
+            right: 10px;
+        }
+        #textureField>img{
+            margin-top:5px;
+        }
+
         </style>
 </head>
 
 <body>
     <!-- threejs容器 -->
-    <div id="viewField"></div>
+    <div id="viewField">
+
+    </div>
+
+    <!-- 材质选择 -->
+    <div id="textureField">
+
+    </div>
     <!-- 编辑栏 -->
     <div id="editField">
         <div class="panel">
@@ -66,9 +84,9 @@
                         <li><a data-toggle="modal" data-target="#addComponentModal"><i class="icon icon-plus"></i>添加新组件</a></li>
                     </ul>
                 </div>
-                <div style="margin-top:20px">
+                <div>
                     <div class="page-header">
-                        <h3 id="componentTitle">请先选择部件</h3>
+                        <h4 id="componentTitle">请先选择部件</h3>
                     </div>
                     <div class="list-group" id="modelList">
                     </div>
@@ -115,7 +133,7 @@
                     </div>
                     <div class="modal-body">
                         <div id="textureList">
-                          
+
                         </div>
                     </div>
                     <div class="modal-footer">
