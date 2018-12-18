@@ -146,6 +146,31 @@
                 </div>
             </div>
         </div>
+
+        <!-- 模态框：修改模型名字 -->
+        <div class="modal fade" id="changeModelNameModal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                                class="sr-only">关闭</span></button>
+                        <h4 class="modal-title">修改</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="textureList">
+                            <input type="text" class="form-control" id="modelName" placeholder="模型名称">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <form id="uploadTextureForm" enctype="multipart/form-data">
+                            <input type="file" name="file" id="textureFile" style="display: none" />
+                        </form>
+                        <button class="btn btn-primary" id="changeModelName">确定修改</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-left: 10px">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script src="/js/createScheme.js"></script>
 </body>
 

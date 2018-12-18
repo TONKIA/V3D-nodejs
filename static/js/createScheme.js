@@ -81,10 +81,10 @@ function freshModelList() {
         for (var index in data.components[componentIndex].models) {
             if (index == data.components[componentIndex].modelIndex) {
                 data.components[componentIndex].models[index].modelObj.visible = true;
-                $('#modelList').append("<a class='list-group-item active' onclick='selectModel(" + index + ")'><span>" + data.components[componentIndex].models[index].name + "</span><button type='button' class='close' onclick='delModelItem(" + index + ")'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button></a>");
+                $('#modelList').append("<a class='list-group-item active' ondblclick='changeModelName(" + index + ")' onclick='selectModel(" + index + ")'><span>" + data.components[componentIndex].models[index].name + "</span><button type='button' class='close' onclick='delModelItem(" + index + ")'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button></a>");
             } else {
                 data.components[componentIndex].models[index].modelObj.visible = false;
-                $('#modelList').append("<a class='list-group-item' onclick='selectModel(" + index + ")'><span>" + data.components[componentIndex].models[index].name + "</span><button type='button' class='close' onclick='delModelItem(" + index + ")'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button></a>");
+                $('#modelList').append("<a class='list-group-item' ondblclick='changeModelName(" + index + ")' onclick='selectModel(" + index + ")'><span>" + data.components[componentIndex].models[index].name + "</span><button type='button' class='close' onclick='delModelItem(" + index + ")'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button></a>");
             }
         }
     }
@@ -106,6 +106,20 @@ function delModelItem(index) {
     event.stopPropagation();
 }
 
+//点击事件：修改模型名称
+function changeModelName(index) {
+    $('#modelName').val(data.components[componentIndex].models[index].name);
+    $('#changeModelNameModal').modal('show');
+    $('#changeModelName').unbind('click');
+    $('#changeModelName').click(function () {
+        if ($('#modelName').val().trim().length > 0) {
+            data.components[componentIndex].models[index].name = $('#modelName').val();
+            $('#changeModelNameModal').modal('hide');
+            freshModelList();
+        }
+    });
+}
+
 //刷新贴图列表
 function freshTextureList() {
     $('#textureList').empty();
@@ -113,7 +127,6 @@ function freshTextureList() {
         var fileName = data.components[componentIndex].textures[index].name;
         var fileId = data.components[componentIndex].textures[index].fileId;
         $('#textureList').append("<img src='/files/thumbnail/" + fileId + "' width='40px' height='40px' class='img-thumbnail' alt = '" + fileName + "' onclick='delTexture(" + index + ")'> ");
-
     }
 }
 
@@ -329,9 +342,6 @@ function initEvent() {
                 type: 'post',
                 url: "/upload",
                 data: formData,
-                cache: false,
-                processData: false,
-                contentType: false,
                 success: function (fileData) {
                     //上传成功后加载模型
                     //加载是异步的
@@ -360,9 +370,6 @@ function initEvent() {
                 type: 'post',
                 url: "/upload",
                 data: formData,
-                cache: false,
-                processData: false,
-                contentType: false,
                 success: function (fileData) {
                     //上传成功后加载模型
                     //加载是异步的

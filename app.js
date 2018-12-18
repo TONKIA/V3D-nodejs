@@ -11,11 +11,28 @@ app.use(express.static('static'));
 
 //临时存储数据
 var data = { name: '默认方案', components: [] };
+var acc = 'tonkia';
+var pwd = '123';
 
-
-//主页加载
+//主页加载：登录页面
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + "/views/createScheme.html");
+    res.sendFile(__dirname + "/views/login.html");
+});
+
+//登录
+app.post('/', function (req, res) {
+    var account = req.body.account;
+    var password = req.body.password;
+    //用户验证
+    if (account == acc && password == pwd) {
+        res.send('登录成功');
+    } else {
+        res.send('登录失败');
+    }
+});
+
+app.get('/home', function (req, res) {
+    res.sendFile(__dirname + "/views/home.html");
 });
 
 //接受文件上传，并且返回文件名

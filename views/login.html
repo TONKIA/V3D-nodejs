@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- jquery -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <!-- ZUI -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/zui/1.8.1/css/zui.min.css">
+    <script src="//cdn.bootcss.com/zui/1.8.1/js/zui.min.js"></script>
+    <title>3D MODELS SYSTEM</title>
+    <style>
+        .input-block{
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body background='/img/webbg.jpg'>
+    <div class="container-fixed-xs">
+        <div style="height:100px"></div>
+        <h1>3D MODELS SYSTEM</h1>
+        <span class="label label-info">v1.0</span>
+        <hr />
+        <div class="panel">
+            <div class="panel-heading">
+                <h2>用户登录</h2>
+            </div>
+            <div class="panel-body">
+                <div class="input-group input-block">
+                    <span class="input-group-addon">用户名</span>
+                    <input type="text" id="account" class="form-control" placeholder="请输入用户名">
+                </div>
+                <div class="input-group input-block">
+                    <span class="input-group-addon">密　码</span>
+                    <input type="password" id="password" class="form-control" placeholder="请输入密码">
+                </div>
+                <button class="btn btn-primary btn-block input-block" id="loginBtn">登　　录</button>
+            </div>
+            <div class="panel-footer">
+                <small>DESIGNED BY TONKIA</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('#loginBtn').click(function () {
+            $.ajax({
+                type: 'post',
+                url: "/",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ account: $('#account').val(), password: $('#password').val() }),
+                success: function (data) {
+                    alert(data);
+                },
+                error: function () {
+                    alert("失败");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
