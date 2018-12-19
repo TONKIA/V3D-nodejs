@@ -1,5 +1,5 @@
 //全局变量
-var renderer, scene, camera;
+var renderer, scene, camera, controls;
 var totalFinish = 0;
 //整个页面维护的数据
 //var data = { name: '默认方案', components: [] };
@@ -260,7 +260,7 @@ function loadModel() {
             res = comLast && molLast;
             //异步加载问题
             (function (comIndex, molIndex, res) {
-                var url = '/files/' + data.components[comIndex].models[molIndex].fileId;
+                var url = '/files/model/' + data.components[comIndex].models[molIndex].fileId;
                 loader.load(url, function (object) {
                     object.visible = (data.components[comIndex].modelIndex == molIndex);
                     data.components[comIndex].models[molIndex].modelObj = object;
@@ -283,7 +283,7 @@ function loadModel() {
             var res = comLast && textureLast;
             //异步加载问题
             (function (comIndex, textureIndex, res) {
-                var url = '/files/' + data.components[comIndex].textures[textureIndex].fileId;
+                var url = '/files/texture/' + data.components[comIndex].textures[textureIndex].fileId;
                 loader.load(url, function (object) {
                     data.components[comIndex].textures[textureIndex].textureObj = object;
                     if (res)
@@ -311,14 +311,11 @@ function initTexture() {
 //初始化所有事件
 function initEvent() {
     $('#saveScheme').click(function () {
-        // $.ajax({
-        //     type: "POST",
-        //     url: "/saveScheme",
-        //     contentType: "application/json; charset=utf-8",
-        //     data: JSON.stringify(data)
-        // });
-        $.post('/saveScheme', data, function () {
-
+        $.ajax({
+            type: "POST",
+            url: "/saveScheme",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(data)
         });
     });
 
@@ -330,7 +327,7 @@ function initEvent() {
     //将fileinput事件注册到uploadbtn上
     $("#upload").click(function () {
         $("#file").click();
-    });  
+    });
 
     $("#textureUpload").click(function () {
         $("#textureFile").click();
@@ -342,7 +339,7 @@ function initEvent() {
             var formData = new FormData($('#uploadForm')[0]);
             $.ajax({
                 type: 'post',
-                url: "/upload",
+                url: "/upload/model",
                 data: formData,
                 cache: false,
                 processData: false,
@@ -358,7 +355,7 @@ function initEvent() {
                         });
                         selectModel(data.components[componentIndex].models.length - 1);
                     }
-                    addModel('/files/' + fileData.filename, addModelItem);
+                    addModel('/files/model/' + fileData.filename, addModelItem);
                 },
                 error: function () {
                     alert("上传失败")
@@ -373,7 +370,7 @@ function initEvent() {
             var formData = new FormData($('#uploadTextureForm')[0]);
             $.ajax({
                 type: 'post',
-                url: "/upload",
+                url: "/upload/texture",
                 data: formData,
                 cache: false,
                 processData: false,
@@ -391,7 +388,7 @@ function initEvent() {
                         freshTextureList();
                         freshTextureField();
                     }
-                    addTexture('/files/' + fileData.filename, addTextureItem);
+                    addTexture('/files/texture/' + fileData.filename, addTextureItem);
                 },
                 error: function () {
                     alert("上传失败")
@@ -487,7 +484,6 @@ function addTexture(url, callBack) {
         callBack(object);
     });
 }
-
 function replaceTexture(modelObj, textureObj) {
     modelObj.traverse(function (child) {
         if (child instanceof THREE.Mesh) {
