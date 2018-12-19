@@ -311,12 +311,14 @@ function initTexture() {
 //初始化所有事件
 function initEvent() {
     $('#saveScheme').click(function () {
-        console.info(data);
-        $.ajax({
-            type: "POST",
-            url: "/saveScheme",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(data)
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/saveScheme",
+        //     contentType: "application/json; charset=utf-8",
+        //     data: JSON.stringify(data)
+        // });
+        $.post('/saveScheme', data, function () {
+
         });
     });
 
@@ -328,7 +330,7 @@ function initEvent() {
     //将fileinput事件注册到uploadbtn上
     $("#upload").click(function () {
         $("#file").click();
-    });
+    });  
 
     $("#textureUpload").click(function () {
         $("#textureFile").click();
@@ -342,6 +344,9 @@ function initEvent() {
                 type: 'post',
                 url: "/upload",
                 data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
                 success: function (fileData) {
                     //上传成功后加载模型
                     //加载是异步的
@@ -370,6 +375,9 @@ function initEvent() {
                 type: 'post',
                 url: "/upload",
                 data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
                 success: function (fileData) {
                     //上传成功后加载模型
                     //加载是异步的

@@ -47,16 +47,18 @@
 
     <script>
         $('#loginBtn').click(function () {
-            $.ajax({
-                type: 'post',
-                url: "/",
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({ account: $('#account').val(), password: $('#password').val() }),
-                success: function (data) {
-                    alert(data);
-                },
-                error: function () {
-                    alert("失败");
+            $.post('/', { account: $('#account').val(), password: $('#password').val() }, function (data) {
+                if (data == 1) {
+                    window.location.href = "/home";
+                } else {
+                    new $.zui.Messager('登录失败', {
+                        type: 'danger',
+                        close: false,
+                        actions: [{
+                            icon: 'times',
+                            text: '确定',
+                        }]
+                    }).show();
                 }
             });
         });

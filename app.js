@@ -2,21 +2,43 @@ var express = require('express');
 var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 var bodyParser = require('body-parser');
+var session = require('express-session');
 var fs = require('fs');
 var gm = require('gm');
 var app = express();
 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.static('static'));
+app.use(session({
+    secret: 'tonkia', // 对session id 相关的cookie 进行签名
+    resave: true,
+    saveUninitialized: false, // 是否保存未初始化的会话
+    cookie: {
+        maxAge: 1000 * 60 * 2, // 设置 session 的有效时间，单位毫秒
+    }
+}));
+
+//权限判断
+app.use(['/create', '/logout', '/home'], function (req, res, next) {
+    if (req.session.user)
+        next();
+    else
+        res.redirect('/');
+});
 
 //临时存储数据
 var data = { name: '默认方案', components: [] };
-var acc = 'tonkia';
-var pwd = '123';
+var user = { account: 'tonkia', userName: 'tonkia xx', password: '123' };
 
 //主页加载：登录页面
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/views/login.html");
+});
+
+//方案创建
+app.get('/create', function (req, res) {
+    res.sendFile(__dirname + "/views/createScheme.html");
 });
 
 //登录
@@ -24,15 +46,23 @@ app.post('/', function (req, res) {
     var account = req.body.account;
     var password = req.body.password;
     //用户验证
-    if (account == acc && password == pwd) {
-        res.send('登录成功');
+    if (account == user.account && password == user.password) {
+        req.session.user = user;
+        res.send('1');
     } else {
-        res.send('登录失败');
+        res.send('0');
     }
 });
 
+//用户注销
+app.get('/logout', function (req, res) {
+    req.session.user = null;
+    res.redirect('/');
+});
+
+//用户主页
 app.get('/home', function (req, res) {
-    res.sendFile(__dirname + "/views/home.html");
+        res.sendFile(__dirname + "/views/home.html");
 });
 
 //接受文件上传，并且返回文件名
@@ -47,11 +77,11 @@ app.get('/files/:filename', function (req, res) {
     var filename = req.params['filename'];
     res.sendFile(__dirname + "/uploads/" + filename);
 });
+
 //返回缩略图
 app.get('/files/thumbnail/:filename', function (req, res) {
     var filename = req.params['filename'];
     // fs.exists(__dirname + "/uploads/thumbnail/" + filename, function (exist) {
-
     //     if (exist) {
     //         res.sendFile(__dirname + "/uploads/thumbnail/" + filename);
     //     } else {
