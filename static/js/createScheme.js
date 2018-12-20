@@ -19,10 +19,13 @@ $().ready(function () {
 //---------------------------------------------------------------------------------------------------------------------
 //获取数据 初始化data
 function initData() {
+    var url = document.location.toString();
+    var arrUrl = url.split("create");
+    var id = arrUrl[arrUrl.length - 1];
     //ajax请求数据
     $.ajax({
         type: "POST",
-        url: "/getScheme",
+        url: "/getScheme" + id,
         async: false, //同步请求，不然data会出问题
         success: function (remotaData) {
             //给全局data赋值
@@ -218,7 +221,7 @@ function initCamera() {
 
 function initRenderer() {
     //初始化渲染器
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     //设置像素值
     renderer.setPixelRatio(window.devicePixelRatio);
     //设置渲染范围为屏幕的大小
@@ -311,11 +314,24 @@ function initTexture() {
 //初始化所有事件
 function initEvent() {
     $('#saveScheme').click(function () {
+        var saveData = data;
+        for (var index in saveData.components) {
+            for (textureIndex in saveData.components[index].textures) {
+                delete saveData.components[index].textures[textureIndex].textureObj;
+            }
+            for (modelIndex in saveData.components[index].models) {
+                delete saveData.components[index].models[modelIndex].modelObj;
+            }
+        }
+        var image = new Image();
+        let imgData = renderer.domElement.toDataURL("image/jpeg");//这里可以选择png格式jpeg格式
+        saveData.img = imgData;
+        console.info(saveData);
         $.ajax({
             type: "POST",
             url: "/saveScheme",
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(data)
+            data: JSON.stringify(saveData)
         });
     });
 

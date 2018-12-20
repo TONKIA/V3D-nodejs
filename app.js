@@ -5,12 +5,13 @@ var session = require('express-session');
 var fs = require('fs');
 var gm = require('gm');
 
+var db = require('./db');
 var app = express();
 
 var storage = multer.diskStorage({
     destination: function (req, res, cb) {
         var fileType = req.params["fileType"];
-        console.info(fileType);
+        //console.info(fileType);
         cb(null, 'uploads/' + fileType);
     }
 });
@@ -24,12 +25,12 @@ app.use(session({
     resave: true,
     saveUninitialized: false, // 是否保存未初始化的会话
     cookie: {
-        maxAge: 1000 * 60 * 2, // 设置 session 的有效时间，单位毫秒
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 设置 session 的有效时间，单位毫秒
     }
 }));
 
-//权限判断
-app.use(['/create', '/logout', '/home'], function (req, res, next) {
+//权限判断：拦截器
+app.use(['/create', '/logout', '/home', '/saveScheme', '/getScheme'], function (req, res, next) {
     if (req.session.user)
         next();
     else
@@ -37,8 +38,7 @@ app.use(['/create', '/logout', '/home'], function (req, res, next) {
 });
 
 //临时存储数据
-var data = { name: '默认方案', components: [] };
-var user = { account: 'tonkia', userName: 'tonkia xx', password: '123' };
+//var data = { name: '默认方案', components: [], img: null };
 
 //主页加载：登录页面
 app.get('/', function (req, res) {
@@ -50,17 +50,23 @@ app.get('/create', function (req, res) {
     res.sendFile(__dirname + "/views/createScheme.html");
 });
 
+app.get('/create/:id', function (req, res) {
+    res.sendFile(__dirname + "/views/createScheme.html");
+});
+
 //登录
 app.post('/', function (req, res) {
     var account = req.body.account;
     var password = req.body.password;
-    //用户验证
-    if (account == user.account && password == user.password) {
-        req.session.user = user;
-        res.send('1');
-    } else {
-        res.send('0');
-    }
+    db.queryUserByAccount(account, function (user) {
+        //用户验证
+        if (account == user.account && password == user.password) {
+            req.session.user = user;
+            res.send('1');
+        } else {
+            res.send('0');
+        }
+    });
 });
 
 //用户注销
@@ -74,9 +80,23 @@ app.get('/home', function (req, res) {
     res.sendFile(__dirname + "/views/home.html");
 });
 
+app.post('/home', function (req, res) {
+    //初始化主页数据
+    //用户信息
+    var user = req.session.user;
+    db.querySchemeByUid(user.id, function (schemeList) {
+        delete user.password;
+        var homeData = {
+            user: user,
+            schemeList: schemeList
+        }
+        res.send(homeData);
+    });
+});
+
 //接受文件上传，并且返回文件名
 app.post('/upload/:fileType', upload.single('file'), function (req, res) {
-    console.info(req.file)
+    //console.info(req.file)
     res.send(req.file);
 });
 
@@ -107,13 +127,43 @@ app.get('/files/:fileType/:fileName', function (req, res) {
 
 //保存方案
 app.post('/saveScheme', function (req, res) {
-    data = req.body;
-    console.info(data);
+    var data = req.body;
+    var img = data.img;
+    delete data.img;
+    db.insertScheme(req.session.user.id, data.name, JSON.stringify(data), img, function (res) {
+        //console.info(res);
+        if (res.affectedRows > 0) {
+
+        } else {
+
+        }
+    });
+    // console.info(data);
 });
 
 //获取方案
 app.post('/getScheme', function (req, res) {
+    var data = { name: '默认方案', components: [], img: null };
     res.send(data);
+});
+
+app.post('/getScheme/:id', function (req, res) {
+    var id = req.params['id'];
+    var user = req.session.user;
+    // console.info(user.id + ":" + id);
+    if (id) {
+        db.getSchemeById(user.id, id, function (row) {
+            if (row.length > 0) {
+                //  console.info(row[0].data);
+                var data = JSON.parse(row[0].data);
+                res.send(data);
+            } else {
+                //找不到方案
+            }
+        })
+    } else {
+
+    }
 });
 
 app.listen(80);
