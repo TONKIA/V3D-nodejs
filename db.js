@@ -34,6 +34,7 @@ module.exports.queryUserByAccount = function (account, callback) {
     });
 };
 
+//获取方案数据
 module.exports.querySchemeByUid = function (uid, callback) {
     connection.getConnection(function (err, conn) {
         if (err) {
@@ -51,6 +52,7 @@ module.exports.querySchemeByUid = function (uid, callback) {
     });
 };
 
+//增加方案数据
 module.exports.insertScheme = function (uid, name, data, img, callback) {
     connection.getConnection(function (err, conn) {
         if (err) {
