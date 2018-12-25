@@ -1,6 +1,11 @@
 //全局变量
 var renderer, scene, camera, controls;
+//加载参数
 var totalFinish = 0;
+//相机参数
+var height = 2;
+var distance = 10;
+var angel = 0;
 //整个页面维护的数据
 //var data = { name: '默认方案', components: [] };
 //TODO 相机参数
@@ -208,15 +213,16 @@ function initScene() {
 }
 
 function initCamera() {
+
     //相机设置
     camera = new THREE.PerspectiveCamera(45, $('#viewField').innerWidth() / $('#viewField').innerHeight());
-    camera.position.set(0, 5, 10);
+    camera.position.set(distance * Math.sin(angel), height, distance * Math.cos(angel));
     //让相机对着场景中央
-    camera.lookAt(scene.position);
+    camera.lookAt(0, height, 0);
     //相机控制,控制的相机和监听的dom
-    controls = new THREE.OrbitControls(camera, $('#viewField')[0]);
-    controls.target.set(0, 0, 0);
-    controls.update();
+    // controls = new THREE.OrbitControls(camera, $('#viewField')[0]);
+    // controls.target.set(0, 0, 0);
+    // controls.update();
 }
 
 function initRenderer() {
@@ -314,7 +320,10 @@ function initTexture() {
 //初始化所有事件
 function initEvent() {
     $('#saveScheme').click(function () {
-        var saveData = data;
+        //复制一个saveData
+        var saveData = {};
+        $.extend(saveData, data);
+        //去除aveData中多余的数据
         for (var index in saveData.components) {
             for (textureIndex in saveData.components[index].textures) {
                 delete saveData.components[index].textures[textureIndex].textureObj;
@@ -323,15 +332,32 @@ function initEvent() {
                 delete saveData.components[index].models[modelIndex].modelObj;
             }
         }
+        //生成缩略图
         var image = new Image();
         let imgData = renderer.domElement.toDataURL("image/jpeg");//这里可以选择png格式jpeg格式
         saveData.img = imgData;
-        console.info(saveData);
+        //上传服务器
         $.ajax({
             type: "POST",
             url: "/saveScheme",
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(saveData)
+            data: JSON.stringify(saveData),
+            success: function (returnData) {
+                console.info(returnData);
+                if (returnData.affectedRows > 0) {
+                    //获取保存后的id
+                    if (returnData.insertId)
+                        data.id = returnData.insertId;
+                    new $.zui.Messager('保存成功！', {
+                        type: 'success',
+                        close: false,
+                        actions: [{
+                            icon: 'times',
+                            text: '确定'
+                        }]
+                    }).show();
+                }
+            }
         });
     });
 

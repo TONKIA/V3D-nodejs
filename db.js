@@ -70,6 +70,25 @@ module.exports.insertScheme = function (uid, name, data, img, callback) {
     });
 };
 
+
+module.exports.updateScheme = function (uid, id, name, data, img, callback) {
+    connection.getConnection(function (err, conn) {
+        if (err) {
+            console.info(err);
+        } else {
+            conn.query('UPDATE scheme SET name=?,data=?,img=? WHERE uid=? AND id =?', [name, data, img, uid, id], function (err, rows) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                callback(rows);
+                conn.release();
+            });
+        }
+    });
+};
+
+
 module.exports.getSchemeById = function (uid, id, callback) {
     connection.getConnection(function (err, conn) {
         if (err) {
@@ -86,3 +105,4 @@ module.exports.getSchemeById = function (uid, id, callback) {
         }
     });
 };
+

@@ -124,41 +124,60 @@ app.get('/files/:fileType/:fileName', function (req, res) {
     var fileName = req.params['fileName'];
     res.sendFile(__dirname + "/uploads/" + fileType + "/" + fileName);
 });
-
+//------------------------------------------------------------------------------------------------
 //保存方案
 app.post('/saveScheme', function (req, res) {
     var data = req.body;
+    var id = data.id;
     var img = data.img;
     delete data.img;
-    db.insertScheme(req.session.user.id, data.name, JSON.stringify(data), img, function (res) {
-        //console.info(res);
-        if (res.affectedRows > 0) {
+    //如果有id存在就update
+    if (id) {
+        db.updateScheme(req.session.user.id, id, data.name, JSON.stringify(data), img, function (row) {
+            if (row.affectedRows > 0) {
+                var returnData = {
+                    affectedRows: row.affectedRows
+                }
+                res.send(returnData);
+            } else {
 
-        } else {
-
-        }
-    });
+            }
+        });
+    } else {
+        //如果id不存在就插入数据返回id
+        db.insertScheme(req.session.user.id, data.name, JSON.stringify(data), img, function (row) {
+            if (row.affectedRows > 0) {
+                var returnData = {
+                    affectedRows: row.affectedRows,
+                    insertId: row.insertId
+                }
+                res.send(returnData);
+            } else {
+                //插入失败
+            }
+        });
+    }
     // console.info(data);
 });
-
-//获取方案
+//------------------------------------------------------------------------------------------------
+//获取初始方案
 app.post('/getScheme', function (req, res) {
-    var data = { name: '默认方案', components: [], img: null };
+    var data = { name: '默认方案', components: [], img: null, id: null };
     res.send(data);
 });
 
+//根据局ID获取初始方案
 app.post('/getScheme/:id', function (req, res) {
     var id = req.params['id'];
     var user = req.session.user;
-    // console.info(user.id + ":" + id);
     if (id) {
         db.getSchemeById(user.id, id, function (row) {
             if (row.length > 0) {
-                //  console.info(row[0].data);
                 var data = JSON.parse(row[0].data);
+                data.id = id;
                 res.send(data);
             } else {
-                //找不到方案
+                //TODO 找不到方案
             }
         })
     } else {

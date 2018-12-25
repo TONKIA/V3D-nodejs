@@ -102,76 +102,79 @@
                 <button class="btn btn-success btn-block" id="saveScheme">保存方案</button>
             </div>
         </div>
-        <!-- 模态框：添加组件 -->
-        <div class="modal fade" id="addComponentModal">
-            <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
-                                class="sr-only">关闭</span></button>
-                        <h4 class="modal-title">添加新组件</h4>
-                    </div>
-                    <div class="modal-body">
-                        <input type="text" class="form-control" id="componentName" placeholder="组件名称">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <button type="button" class="btn btn-primary" id="addComponent">添加</button>
-                    </div>
+        <div class='pull-right' style='margin-right: 10px'><a href='/home'>返回主页</a></div>
+    </div>
+
+    <!-- 模态框：添加组件 -->
+    <div class="modal fade" id="addComponentModal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                            class="sr-only">关闭</span></button>
+                    <h4 class="modal-title">添加新组件</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="componentName" placeholder="组件名称">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="addComponent">添加</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- 模态框：材质管理 -->
-        <div class="modal fade" id="textureManagermentModal">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
-                                class="sr-only">关闭</span></button>
-                        <h4 class="modal-title">贴图管理</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div id="textureList">
+    <!-- 模态框：材质管理 -->
+    <div class="modal fade" id="textureManagermentModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                            class="sr-only">关闭</span></button>
+                    <h4 class="modal-title">贴图管理</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="textureList">
 
-                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <form id="uploadTextureForm" enctype="multipart/form-data">
-                            <input type="file" name="file" id="textureFile" style="display: none" />
-                        </form>
-                        <button class="btn btn-primary" id="textureUpload">上传贴图</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-left: 10px">确定</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form id="uploadTextureForm" enctype="multipart/form-data">
+                        <input type="file" name="file" id="textureFile" style="display: none" />
+                    </form>
+                    <button class="btn btn-primary" id="textureUpload">上传贴图</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-left: 10px">确定</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- 模态框：修改模型名字 -->
-        <div class="modal fade" id="changeModelNameModal">
-            <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
-                                class="sr-only">关闭</span></button>
-                        <h4 class="modal-title">修改</h4>
+    <!-- 模态框：修改模型名字 -->
+    <div class="modal fade" id="changeModelNameModal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                            class="sr-only">关闭</span></button>
+                    <h4 class="modal-title">修改</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="textureList">
+                        <input type="text" class="form-control" id="modelName" placeholder="模型名称">
                     </div>
-                    <div class="modal-body">
-                        <div id="textureList">
-                            <input type="text" class="form-control" id="modelName" placeholder="模型名称">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <form id="uploadTextureForm" enctype="multipart/form-data">
-                            <input type="file" name="file" id="textureFile" style="display: none" />
-                        </form>
-                        <button class="btn btn-primary" id="changeModelName">确定修改</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-left: 10px">取消</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form id="uploadTextureForm" enctype="multipart/form-data">
+                        <input type="file" name="file" id="textureFile" style="display: none" />
+                    </form>
+                    <button class="btn btn-primary" id="changeModelName">确定修改</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-left: 10px">取消</button>
                 </div>
             </div>
         </div>
-        <script src="/js/createScheme.js"></script>
+    </div>
+    <script src="/js/createScheme.js"></script>
 </body>
 
 </html>
