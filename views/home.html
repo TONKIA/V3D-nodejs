@@ -60,35 +60,96 @@
         <div id='schemeList'>
 
         </div>
+
+        <!-- 模态框：方案分享 -->
+        <div class="modal fade" id="shareSchemeModal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                                class="sr-only">关闭</span></button>
+                        <h4 class="modal-title">分享</h4>
+                    </div>
+                    <div class="modal-body">
+                        <label>访问密码：</label><input class="form-control" type="password" id="sharePassword" />
+                        <div class="switch text-left">
+                            <input type="checkbox" id="needPassword">
+                            <label>密码访问</label>
+                        </div>
+                        <hr />
+                        <label>开启链接：</label><input class="form-control" type="text" value="xxx" readonly="true" id="shareLink" />
+                        <div class="switch text-left">
+                            <input type="checkbox" id="isShared">
+                            <label>开启分享</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="changeShareConfig">确定</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-left: 10px">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
+        var data;
+
         $().ready(function () {
             initPage();
         });
 
         //初始化页面
         function initPage() {
-            $.post('/home', function (data) {
-                console.info(data);
+            $.post('/home', function (replyData) {
+                data = replyData;
+                //console.info(data);
                 $('#name').text(data.user.name);
                 // <div class="col-md-4 col-sm-6 col-lg-3">
-                // <a class="card" href="###">
+                // <div class="card">
+                // <a href="###">
                 //     <img src="" alt="xxx">
                 //     <div class="card-heading"><strong>xxx</strong></div>
+                // </a>
                 //     <div class="card-actions">
                 //         <div class="pull-right"> <button type="button" class="btn btn-primary"><i class="icon-heart"></i>
                 //                 分享</button></div>
                 //     </div>
-                // </a>
+                // </div >
                 // </div >
                 for (index in data.schemeList) {
                     var href = '/create/' + data.schemeList[index].id;
                     var name = data.schemeList[index].name;
                     var img = data.schemeList[index].img;
                     var id = data.schemeList[index].id;
-                    $('#schemeList').append("<div class='col-md-4 col-sm-6 col-lg-3'><a class='card' href='" + href + "'><div class='media-wrapper'><img style='width:100%' src='" + img + "' alt='" + name + "'></div><div class='card-heading'><strong>" + name + "</strong></div><div class='card-actions'><div class='pull-right'> <button type='button' class='btn btn-primary' onclick='share(" + id + ")'><i class='icon-heart'></i> 分享</button></div></div></a></div >");
+                    $('#schemeList').append("<div class='col-md-4 col-sm-6 col-lg-3'><div class='card'><a href='" + href + "'><div class='media-wrapper'><img style='width:100%' src='" + img + "' alt='" + name + "'></div><div class='card-heading'><strong>" + name + "</strong></div></a><div class='card-actions'><div class='pull-right'> <button type='button' class='btn btn-primary' onclick='share(" + index + ")'><i class='icon-heart'></i> 分享</button></div></div></div></div>");
                 }
             });
+        }
+
+        //分享
+        function share(index) {
+            $('#shareSchemeModal').modal('show');
+            $('#shareLink').val(data.shareLink + "/" + data.schemeList[index].id);
+            if (data.schemeList[index].share_password) {
+                $('#sharePassword').val(data.schemeList[index].share_password);
+            }
+            switch (data.schemeList[index].share_state) {
+                case 0:
+                    //不共享
+                    $('#needPassword').attr("checked", false);
+                    $('#isShared').attr("checked", false);
+                    break;
+                case 1:
+                    //共享
+                    $('#needPassword').attr("checked", false);
+                    $('#isShared').attr("checked", true);
+                    break;
+                case 2:
+                    //需要密码
+                    $('#needPassword').attr("checked", true);
+                    $('#isShared').attr("checked", true);
+                    break;
+            }
         }
     </script>
 </body>

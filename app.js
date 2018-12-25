@@ -16,6 +16,8 @@ var storage = multer.diskStorage({
     }
 });
 var upload = multer({ storage: storage });
+//共享页面
+var shareLink = '127.0.0.1/share'
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -85,10 +87,12 @@ app.post('/home', function (req, res) {
     //用户信息
     var user = req.session.user;
     db.querySchemeByUid(user.id, function (schemeList) {
+        //去除用户密码信息
         delete user.password;
         var homeData = {
             user: user,
-            schemeList: schemeList
+            schemeList: schemeList,
+            shareLink: shareLink
         }
         res.send(homeData);
     });
@@ -185,7 +189,6 @@ app.post('/getScheme/:id', function (req, res) {
                 }
                 res.send(replyData);
             } else {
-                //TODO 找不到方案
                 replyData = {
                     msg: 1
                 }

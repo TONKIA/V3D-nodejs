@@ -40,7 +40,7 @@ module.exports.querySchemeByUid = function (uid, callback) {
         if (err) {
             console.info(err);
         } else {
-            conn.query('SELECT id,name,img FROM scheme WHERE uid = ?', [uid], function (err, rows) {
+            conn.query('SELECT id,name,img,share_state,share_password FROM scheme WHERE uid = ?', [uid], function (err, rows) {
                 if (err) {
                     console.log(err);
                     return;
