@@ -86,7 +86,7 @@
                     var name = data.schemeList[index].name;
                     var img = data.schemeList[index].img;
                     var id = data.schemeList[index].id;
-                    $('#schemeList').append("<div class='col-md-4 col-sm-6 col-lg-3'><a class='card' href='" + href + "'><div class='media-wrapper'><img src='" + img + "' alt='" + name + "'></div><div class='card-heading'><strong>" + name + "</strong></div><div class='card-actions'><div class='pull-right'> <button type='button' class='btn btn-primary' onclick='share(" + id + ")'><i class='icon-heart'></i> 分享</button></div></div></a></div >");
+                    $('#schemeList').append("<div class='col-md-4 col-sm-6 col-lg-3'><a class='card' href='" + href + "'><div class='media-wrapper'><img style='width:100%' src='" + img + "' alt='" + name + "'></div><div class='card-heading'><strong>" + name + "</strong></div><div class='card-actions'><div class='pull-right'> <button type='button' class='btn btn-primary' onclick='share(" + id + ")'><i class='icon-heart'></i> 分享</button></div></div></a></div >");
                 }
             });
         }

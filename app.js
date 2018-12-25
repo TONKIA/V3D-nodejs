@@ -162,8 +162,12 @@ app.post('/saveScheme', function (req, res) {
 //------------------------------------------------------------------------------------------------
 //获取初始方案
 app.post('/getScheme', function (req, res) {
-    var data = { name: '默认方案', components: [], img: null, id: null };
-    res.send(data);
+    var data = { name: '默认方案', components: [], img: null, id: null, maxHeight: 10, height: 2, maxDistance: 30, distance: 10 };
+    replyData = {
+        msg: 0,
+        data: data
+    }
+    res.send(replyData);
 });
 
 //根据局ID获取初始方案
@@ -175,9 +179,17 @@ app.post('/getScheme/:id', function (req, res) {
             if (row.length > 0) {
                 var data = JSON.parse(row[0].data);
                 data.id = id;
-                res.send(data);
+                replyData = {
+                    msg: 0,
+                    data: data
+                }
+                res.send(replyData);
             } else {
                 //TODO 找不到方案
+                replyData = {
+                    msg: 1
+                }
+                res.send(replyData);
             }
         })
     } else {

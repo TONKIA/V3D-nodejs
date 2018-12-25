@@ -1,11 +1,8 @@
 //全局变量
 var renderer, scene, camera, controls;
-//加载参数
-var totalFinish = 0;
 //相机参数
-var height = 2;
-var distance = 10;
-var angel = 0;
+// var height = 2;
+// var distance = 10;
 //整个页面维护的数据
 //var data = { name: '默认方案', components: [] };
 //TODO 相机参数
@@ -34,7 +31,10 @@ function initData() {
         async: false, //同步请求，不然data会出问题
         success: function (remotaData) {
             //给全局data赋值
-            data = remotaData;
+            if (remotaData.msg == 0)
+                data = remotaData.data;
+            else
+                window.location.href = "/home";
         },
         error: function () {
             //TODO 初始化数据异常
@@ -48,6 +48,14 @@ function initData() {
 function initUi() {
     //刷新方案名
     $('#schemeName').val(data.name);
+    //相机参数
+    $('#cameraHeightMaxValue').val(data.maxHeight);
+    $('#cameraHeightValue').text(data.height);
+    $('#cameraHeight').val(data.height / data.maxHeight * 100);
+
+    $('#cameraDistanceMaxValue').val(data.maxDistance);
+    $('#cameraDistanceValue').text(data.distance);
+    $('#cameraDistance').val(data.distance / data.maxDistance * 100);
     //刷新组件列表
     freshComponentItem();
 }
@@ -213,16 +221,23 @@ function initScene() {
 }
 
 function initCamera() {
-
     //相机设置
     camera = new THREE.PerspectiveCamera(45, $('#viewField').innerWidth() / $('#viewField').innerHeight());
-    camera.position.set(distance * Math.sin(angel), height, distance * Math.cos(angel));
+    camera.position.y = data.height;
     //让相机对着场景中央
-    camera.lookAt(0, height, 0);
+    //camera.lookAt(0, height, 0);
     //相机控制,控制的相机和监听的dom
-    // controls = new THREE.OrbitControls(camera, $('#viewField')[0]);
-    // controls.target.set(0, 0, 0);
-    // controls.update();
+    controls = new THREE.OrbitControls(camera, $('#viewField')[0]);
+    controls.target.set(0, data.height, 0);
+    controls.maxPolarAngle = Math.PI / 2;
+    controls.minPolarAngle = Math.PI / 2;
+    controls.minDistance = data.distance;
+    controls.maxDistance = data.distance;
+    controls.enablePan = false;
+    controls.enableKeys = false;
+    // controls.maxAzimuthAngle = 0;
+    // controls.minAzimuthAngle = 0;
+    controls.update();
 }
 
 function initRenderer() {
@@ -250,72 +265,60 @@ function loadModel() {
     // manager.onStart = function (url, itemsLoaded, itemsTotal) {
     //     console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
     // };
-    // manager.onLoad = function () {
-    // };
+    manager.onLoad = function () {
+        initTexture();
+    };
     // manager.onProgress = function (url, itemsLoaded, itemsTotal) {
     //     console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
     // };
     // manager.onError = function (url) {
     //     console.log('There was an error loading ' + url);
     // };
-
     //模型加载
     var loader = new THREE.FBXLoader(manager);
 
     for (var comIndex in data.components) {
-        var comLast = (comIndex == data.components.length - 1);
         for (var molIndex in data.components[comIndex].models) {
-            var molLast = (molIndex == data.components[comIndex].models.length - 1);
-            res = comLast && molLast;
             //异步加载问题
-            (function (comIndex, molIndex, res) {
+            (function (comIndex, molIndex) {
                 var url = '/files/model/' + data.components[comIndex].models[molIndex].fileId;
                 loader.load(url, function (object) {
                     object.visible = (data.components[comIndex].modelIndex == molIndex);
                     data.components[comIndex].models[molIndex].modelObj = object;
                     scene.add(object);
-                    //如果模型全部加载完成
-                    if (res)
-                        initTexture();
                 }
                 );
-            })(comIndex, molIndex, res);
+            })(comIndex, molIndex);
         }
     }
 
     //贴图加载
     var loader = new THREE.TextureLoader(manager);
     for (var comIndex in data.components) {
-        var comLast = (comIndex == data.components.length - 1);
         for (var textureIndex in data.components[comIndex].textures) {
-            var textureLast = (textureIndex == (data.components[comIndex].textures.length - 1));
-            var res = comLast && textureLast;
             //异步加载问题
-            (function (comIndex, textureIndex, res) {
+            (function (comIndex, textureIndex) {
                 var url = '/files/texture/' + data.components[comIndex].textures[textureIndex].fileId;
                 loader.load(url, function (object) {
                     data.components[comIndex].textures[textureIndex].textureObj = object;
-                    if (res)
-                        initTexture();
                 }
                 );
-            })(comIndex, textureIndex, res);
+            })(comIndex, textureIndex);
         }
     }
 }
 
+//当模型和贴图都加载结束后，给模型赋予默认贴图
 function initTexture() {
-    totalFinish++;
-    if (totalFinish == 2) {
-        for (var comIndex in data.components) {
-            var modelIndex = data.components[comIndex].modelIndex;
-            var textureIndex = data.components[comIndex].textureIndex;
-            //赋贴图
-            if (modelIndex >= 0 && textureIndex >= 0)
-                replaceTexture(data.components[comIndex].models[modelIndex].modelObj, data.components[comIndex].textures[textureIndex].textureObj);
-        }
+    for (var comIndex in data.components) {
+        var modelIndex = data.components[comIndex].modelIndex;
+        var textureIndex = data.components[comIndex].textureIndex;
+        //赋贴图
+        if (data.components[comIndex].models.length > 0 && data.components[comIndex].textures.length > 0)
+            replaceTexture(data.components[comIndex].models[modelIndex].modelObj, data.components[comIndex].textures[textureIndex].textureObj);
     }
 }
+
 //---------------------------------------------------------------------------------------------------------------------
 //初始化所有事件
 function initEvent() {
@@ -323,42 +326,63 @@ function initEvent() {
         //复制一个saveData
         var saveData = {};
         $.extend(saveData, data);
-        //去除aveData中多余的数据
-        for (var index in saveData.components) {
-            for (textureIndex in saveData.components[index].textures) {
-                delete saveData.components[index].textures[textureIndex].textureObj;
-            }
-            for (modelIndex in saveData.components[index].models) {
-                delete saveData.components[index].models[modelIndex].modelObj;
-            }
-        }
         //生成缩略图
+        var imgData = renderer.domElement.toDataURL("image/jpeg");//这里可以选择png格式jpeg格式
+
         var image = new Image();
-        let imgData = renderer.domElement.toDataURL("image/jpeg");//这里可以选择png格式jpeg格式
-        saveData.img = imgData;
-        //上传服务器
-        $.ajax({
-            type: "POST",
-            url: "/saveScheme",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(saveData),
-            success: function (returnData) {
-                console.info(returnData);
-                if (returnData.affectedRows > 0) {
-                    //获取保存后的id
-                    if (returnData.insertId)
-                        data.id = returnData.insertId;
-                    new $.zui.Messager('保存成功！', {
-                        type: 'success',
-                        close: false,
-                        actions: [{
-                            icon: 'times',
-                            text: '确定'
-                        }]
-                    }).show();
+        image.src = imgData;
+        //异步
+        image.onload = function () {
+            var sWidth = image.width;
+            var sHeigth = image.height;
+            var tWidth = sHeigth / 1.2;
+            var tHeigth = sHeigth;
+            //压缩后的像素
+            $('#compress')[0].width = 200;
+            $('#compress')[0].height = 240;
+            //console.info(sWidth + ":" + sHeigth + ":" + tWidth + ":" + tHeigth);
+            //压缩图片
+            $('#compress')[0].getContext('2d').drawImage(image, (sWidth - tWidth) / 2, (sHeigth - tHeigth) / 2, tWidth, tHeigth, 0, 0, $('#compress')[0].width, $('#compress')[0].height);
+            imgData = $('#compress')[0].toDataURL("image/jpeg", 0.5);
+
+            saveData.img = imgData;
+            //去除多余数据
+            var sendData = JSON.stringify(saveData, function (key, value) {
+                if (key == 'textureObj' || key == 'modelObj') {
+                    return null;
+                } else {
+                    return value;
                 }
-            }
-        });
+            })
+            // console.info(data);
+            // console.info(saveData);
+            // console.info(sendData);
+            //上传服务器
+            $.ajax({
+                type: "POST",
+                url: "/saveScheme",
+                contentType: "application/json; charset=utf-8",
+                data: sendData,
+                success: function (returnData) {
+                    //  console.info(returnData);
+                    if (returnData.affectedRows > 0) {
+                        //获取保存后的id
+                        if (returnData.insertId)
+                            data.id = returnData.insertId;
+                        new $.zui.Messager('保存成功！', {
+                            type: 'success',
+                            close: false,
+                            actions: [{
+                                icon: 'times',
+                                text: '确定'
+                            }]
+                        }).show();
+                    }
+                }
+            });
+        };
+
+
     });
 
     //方案名变动监听
@@ -502,6 +526,34 @@ function initEvent() {
     //贴图模态框弹出
     $('#textureManagerment').click(function () {
         $('#textureManagermentModal').modal('show');
+    });
+
+    //相机高度控制
+    $('#cameraHeight').mousemove(function () {
+        var height = data.maxHeight / 100 * $('#cameraHeight').val();
+        data.height = parseFloat(height.toFixed(2));
+        $('#cameraHeightValue').text(data.height);
+        camera.position.y = data.height
+        controls.target.set(0, data.height, 0);
+        controls.update();
+    });
+
+    //相机距离控制
+    $('#cameraDistance').mousemove(function () {
+        distance = data.maxDistance / 100 * $('#cameraDistance').val();
+        data.distance = parseFloat(distance.toFixed(2));
+        $('#cameraDistanceValue').text(data.distance);
+        controls.minDistance = data.distance;
+        controls.maxDistance = data.distance;
+        controls.update();
+    });
+
+    $('#cameraHeightMaxValue').change(function () {
+        data.maxHeight = parseFloat($('#cameraHeightMaxValue').val());
+    });
+
+    $('#cameraDistanceMaxValue').change(function () {
+        data.maxDistance = parseFloat($('#cameraDistanceMaxValue').val());
     });
 }
 
