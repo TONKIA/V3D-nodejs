@@ -338,8 +338,8 @@ function initEvent() {
             var tWidth = sHeigth / 1.2;
             var tHeigth = sHeigth;
             //压缩后的像素
-            $('#compress')[0].width = 200;
-            $('#compress')[0].height = 240;
+            $('#compress')[0].width = 500;
+            $('#compress')[0].height = 600;
             //console.info(sWidth + ":" + sHeigth + ":" + tWidth + ":" + tHeigth);
             //压缩图片
             $('#compress')[0].getContext('2d').drawImage(image, (sWidth - tWidth) / 2, (sHeigth - tHeigth) / 2, tWidth, tHeigth, 0, 0, $('#compress')[0].width, $('#compress')[0].height);
@@ -578,6 +578,8 @@ function addTexture(url, callBack) {
         callBack(object);
     });
 }
+
+//公用方法：模型贴图替换
 function replaceTexture(modelObj, textureObj) {
     modelObj.traverse(function (child) {
         if (child instanceof THREE.Mesh) {

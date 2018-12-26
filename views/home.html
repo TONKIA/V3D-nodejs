@@ -150,6 +150,29 @@
                     $('#isShared').attr("checked", true);
                     break;
             }
+            $('#changeShareConfig').click(function () {
+                var needPassword = $('#needPassword').is(":checked")
+                var isShared = $('#isShared').is(":checked")
+                var share_password = $('#sharePassword').val();
+                var share_state = 0;
+                if (isShared)
+                    share_state = 1;
+                if (needPassword && share_state)
+                    share_state = 2;
+                var sendData = {
+                    id: data.schemeList[index].id,
+                    share_password: share_password,
+                    share_state: share_state
+                }
+                $.post('/changeShareConfig', sendData, function (reply) {
+                    if (reply.affectedRows) {
+                        data.schemeList[index].share_password = share_password;
+                        data.schemeList[index].share_state = share_state;
+                        $('#shareSchemeModal').modal('hide');
+                    }
+                });
+
+            });
         }
     </script>
 </body>

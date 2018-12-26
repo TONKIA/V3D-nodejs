@@ -106,3 +106,71 @@ module.exports.getSchemeById = function (uid, id, callback) {
     });
 };
 
+module.exports.changeShareConfig = function (id, uid, share_password, share_state, callback) {
+    connection.getConnection(function (err, conn) {
+        if (err) {
+            console.info(err);
+        } else {
+            conn.query('UPDATE scheme SET share_password=?,share_state=? WHERE id =? AND uid =?', [share_password, share_state, id, uid], function (err, rows) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                callback(rows);
+                conn.release();
+            });
+        }
+    });
+};
+
+
+module.exports.getShareById = function (id, callback) {
+    connection.getConnection(function (err, conn) {
+        if (err) {
+            console.info(err);
+        } else {
+            conn.query('SELECT share_state FROM scheme WHERE id =?', [id], function (err, rows) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                callback(rows);
+                conn.release();
+            });
+        }
+    });
+};
+
+module.exports.getShareData = function (id, callback) {
+    connection.getConnection(function (err, conn) {
+        if (err) {
+            console.info(err);
+        } else {
+            conn.query('SELECT data FROM scheme WHERE id =? AND share_state=?', [id, 1], function (err, rows) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                callback(rows);
+                conn.release();
+            });
+        }
+    });
+};
+
+module.exports.getShareDataByPassword = function (id, password, callback) {
+    connection.getConnection(function (err, conn) {
+        if (err) {
+            console.info(err);
+        } else {
+            conn.query('SELECT data FROM scheme WHERE id =? AND share_state=? AND share_password=?', [id, 2, password], function (err, rows) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                callback(rows);
+                conn.release();
+            });
+        }
+    });
+};
