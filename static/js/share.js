@@ -1,4 +1,5 @@
 var data;
+var componentIndex;
 
 $().ready(function () {
     init();
@@ -78,9 +79,96 @@ function init() {
 
 //------------------------------------------------------------------------------
 //界面初始化
-function initUi() {
 
+
+var swiperComponent;
+var swiperModel;
+var swiperTexture;
+
+function initUi() {
+    $('#ui').show();
+    initComponentList();
+    initSwiper();
 }
+function initComponentList() {
+    for (var index in data.components) {
+        $('#componentList').prepend("<div class= 'swiper-slide' > <div style='text-align: center; line-height:  50px;height: 50px;font-size: 20px'>" + data.components[index].name + "</div></div > ");
+    }
+}
+
+function initSwiper() {
+
+    swiperModel = new Swiper('#swiperModel', {
+        grabCursor: true,
+        spaceBetween: 20,
+        slidesPerView: 3,
+    })
+
+    swiperTexture = new Swiper('#swiperTexture', {
+        grabCursor: true,
+        slidesPerView: 6,
+        spaceBetween: 20,
+    })
+
+    swiperComponent = new Swiper('#swiperComponent', {
+        grabCursor: true,
+        direction: 'vertical',
+        on: {
+            slideChange: function () {
+                componentIndex = this.activeIndex;
+                freshModelList(this.activeIndex);
+                freshTextureList(this.activeIndex);
+            },
+        },
+    })
+}
+
+function freshModelList(componentIndex) {
+    swiperModel.removeAllSlides();
+    for (var index in data.components[componentIndex].models) {
+        swiperModel.appendSlide('<div class="swiper-slide"><button class="btn btn-default" style="width:100%;" onclick="changeModel(' + index + ')">' + data.components[componentIndex].models[index].name + '</button></div>');
+    }
+}
+
+function freshTextureList(componentIndex) {
+    swiperTexture.removeAllSlides();
+    for (var index in data.components[componentIndex].textures) {
+        var fileName = data.components[componentIndex].textures[index].name;
+        var fileId = data.components[componentIndex].textures[index].fileId;
+        swiperTexture.appendSlide('<div class="swiper-slide"> <img src="/files/thumbnail/' + fileId + '" width="40px" height="40px" class="img-thumbnail" alt = "' + fileName + '" onclick="changeTexture(' + index + ')"> </div>');
+    }
+}
+//点击事件：切换模型
+function changeModel(index) {
+    //先换贴图
+    data.components[componentIndex].modelIndex = index;
+    var textureIndex = data.components[componentIndex].textureIndex;
+    changeTexture(textureIndex);
+    //显示模型
+    for (var i in data.components[componentIndex].models) {
+        if (i == index) {
+            data.components[componentIndex].models[i].modelObj.visible = true;
+        } else {
+            data.components[componentIndex].models[i].modelObj.visible = false;
+        }
+    }
+}
+
+
+//点击事件：切换贴图
+function changeTexture(index) {
+    if (componentIndex >= 0) {
+        if (index < 0)
+            return;
+        var modelIndex = data.components[componentIndex].modelIndex;
+        if (modelIndex < 0)
+            return;
+        data.components[componentIndex].textureIndex = index;
+        replaceTexture(data.components[componentIndex].models[modelIndex].modelObj, data.components[componentIndex].textures[index].textureObj);
+    }
+}
+
+
 //------------------------------------------------------------------------------
 //threejs配置
 function initThree() {

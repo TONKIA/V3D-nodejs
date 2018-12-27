@@ -171,15 +171,16 @@ function delTexture(index) {
 
 //点击事件：切换贴图
 function changeTexture(index) {
-    if (index < 0)
-        return;
-    var modelIndex = data.components[componentIndex].modelIndex;
-    if (modelIndex < 0)
-        return;
-    data.components[componentIndex].textureIndex = index;
-    replaceTexture(data.components[componentIndex].models[modelIndex].modelObj, data.components[componentIndex].textures[index].textureObj);
+    if (componentIndex >= 0) {
+        if (index < 0)
+            return;
+        var modelIndex = data.components[componentIndex].modelIndex;
+        if (modelIndex < 0)
+            return;
+        data.components[componentIndex].textureIndex = index;
+        replaceTexture(data.components[componentIndex].models[modelIndex].modelObj, data.components[componentIndex].textures[index].textureObj);
+    }
 }
-
 //---------------------------------------------------------------------------------------------------------------------
 //ui初始化结束后
 //初始化Threejs
