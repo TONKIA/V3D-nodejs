@@ -15,25 +15,25 @@ nodemon app
 
 #### 登录页面
 
-![](./readme.img/loginPage.png)
+![](./picture/loginPage.png)
 
 #### 用户主页
 
-![](./readme.img/homePage.png)
+![](./picture/homePage.png)
 
 #### 创建方案
 
-![](./readme.img/create.png)
+![](./picture/create.png)
 
-![](./readme.img/sidebar.png)
+![](./picture/sidebar.png)
 
 #### 方案分享
 
-![](./readme.img/share.png)
+![](./picture/share.png)
 
 #### 分享页面
 
-![](./readme.img/sharePage.png)
+![](./picture/sharePage.png)
 
 # 第三方开源
 
